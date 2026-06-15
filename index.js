@@ -11,8 +11,8 @@ app.use(express.urlencoded({ extended: true }));
 
 // ── KONFIGURASI (isi sesuai akun Anda) ──────────────────────
 const CONFIG = {
-  GEMINI_API_KEY: process.env.GEMINI_API_KEY || "ISI_API_KEY_GEMINI_ANDA",
-  FONNTE_TOKEN:   process.env.FONNTE_TOKEN   || "ISI_TOKEN_FONNTE_ANDA",
+  GEMINI_API_KEY: process.env.GEMINI_API_KEY || "AQ.Ab8RN6IrpC4NE3NDtR0zuvxeWyt9Kux0DB861Tl5Xr92rtZI_Q",
+  FONNTE_TOKEN:   process.env.FONNTE_TOKEN   || "FV1WnFQpvoKs6vGJmtqN",
   PORT:           process.env.PORT           || 3000,
 };
 // ────────────────────────────────────────────────────────────
@@ -47,13 +47,7 @@ JALUR EVAKUASI UTAMA:
 - Kecamatan Pateten: Titik kumpul Lapangan Pateten, evakuasi ke RSUD Bitung
 
 KONTAK DARURAT BPBD BITUNG:
-- Posko Utama BPBD: (0438) 21XXX (ganti dengan nomor asli)
 - Emergency 24 jam: 112
-- Damkar Bitung: (0438) 21XXX
-- RSUD Bitung: (0438) 21XXX
-- Polres Bitung: (0438) 21XXX
-- Basarnas Sulut: (0431) 860XXX
-- BMKG Manado: (0431) 860XXX
 
 STATUS SIAGA:
 - SIAGA 1 (Merah): Bencana sedang terjadi — SEGERA EVAKUASI
