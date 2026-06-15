@@ -1,177 +1,86 @@
 export default {
-async fetch(request, env, ctx) {
+  async fetch(request, env) {
 
-```
-const url = new URL(request.url);
+    const url = new URL(request.url);
 
-// =====================================================
-// HALAMAN STATUS
-// =====================================================
-if (url.pathname === "/") {
-  return new Response(
-    `
-    <html>
-    <body style="font-family:Arial;padding:30px">
-      <h2>🆘 Chatbot AI BPBD Kota Bitung</h2>
-      <p>Status: <b style="color:green">AKTIF</b></p>
-      <p>Webhook: /webhook</p>
-    </body>
-    </html>
-    `,
-    {
-      headers: {
-        "Content-Type": "text/html;charset=UTF-8"
-      }
-    }
-  );
-}
-
-// =====================================================
-// TEST WEBHOOK
-// =====================================================
-if (url.pathname === "/webhook" && request.method === "GET") {
-  return Response.json({
-    status: "online",
-    service: "Chatbot AI BPBD Kota Bitung"
-  });
-}
-
-// =====================================================
-// WEBHOOK FONNTE
-// =====================================================
-if (url.pathname === "/webhook" && request.method === "POST") {
-
-  try {
-
-    const data = await request.json();
-
-    console.log("DATA FONNTE:", JSON.stringify(data));
-
-    const sender =
-      data.sender ||
-      data.from ||
-      "";
-
-    const message =
-      data.message ||
-      data.text ||
-      "";
-
-    if (!sender || !message) {
+    // Tes status
+    if (request.method === "GET" && url.pathname === "/webhook") {
       return Response.json({
-        status: "ignored"
+        status: "online",
+        service: "Chatbot AI BPBD Kota Bitung"
       });
     }
 
-    // =================================================
-    // PROMPT BPBD
-    // =================================================
+    // Webhook Fonnte
+    if (request.method === "POST" && url.pathname === "/webhook") {
 
-    const SYSTEM_PROMPT = `
-```
+      const data = await request.json();
 
-Kamu adalah SIAGA (Sistem Informasi AI Gerak Cepat BPBD Kota Bitung).
+      console.log("DATA FONNTE:", JSON.stringify(data));
 
-Tugas:
+      const sender =
+        data.sender ||
+        data.number ||
+        data.from;
 
-* Menjawab pertanyaan kebencanaan.
-* Memberikan edukasi mitigasi bencana.
-* Membantu warga melaporkan kejadian.
-* Selalu menggunakan Bahasa Indonesia.
-* Ramah dan profesional.
+      const pesan =
+        data.message ||
+        data.text ||
+        data.body;
 
-Kontak Darurat:
-112
+      if (!sender || !pesan) {
+        return Response.json({
+          status: "ignored"
+        });
+      }
 
-Jika warga melaporkan bencana tanyakan:
-
-1. Lokasi kejadian
-2. Jenis bencana
-3. Jumlah korban
-4. Kondisi akses jalan
-5. Nomor yang dapat dihubungi
-
-Batas jawaban maksimal 3 paragraf.
-`;
-
-```
-    // =================================================
-    // KIRIM KE GEMINI
-    // =================================================
-
-    const geminiResponse = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${env.GEMINI_API_KEY}`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          system_instruction: {
-            parts: [
+      // Panggil Gemini
+      const gemini = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${env.GEMINI_API_KEY}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            contents: [
               {
-                text: SYSTEM_PROMPT
+                role: "user",
+                parts: [
+                  {
+                    text: pesan
+                  }
+                ]
               }
             ]
-          },
-          contents: [
-            {
-              role: "user",
-              parts: [
-                {
-                  text: message
-                }
-              ]
-            }
-          ]
-        })
-      }
-    );
+          })
+        }
+      );
 
-    const geminiData = await geminiResponse.json();
+      const hasil = await gemini.json();
 
-    let reply =
-      geminiData?.candidates?.[0]?.content?.parts?.[0]?.text ||
-      "Maaf, sistem sedang sibuk. Silakan coba kembali.";
+      const balasan =
+        hasil?.candidates?.[0]?.content?.parts?.[0]?.text ||
+        "Maaf, saya belum dapat memberikan jawaban saat ini.";
 
-    // =================================================
-    // KIRIM BALASAN KE WHATSAPP
-    // =================================================
-
-    await fetch(
-      "https://api.fonnte.com/send",
-      {
+      // Kirim ke WhatsApp
+      await fetch("https://api.fonnte.com/send", {
         method: "POST",
         headers: {
-          "Authorization": env.FONNTE_TOKEN,
+          Authorization: env.FONNTE_TOKEN,
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
           target: sender,
-          message: reply
+          message: balasan
         })
-      }
-    );
+      });
 
-    return Response.json({
-      status: "success"
-    });
+      return Response.json({
+        status: "success"
+      });
+    }
 
-  } catch (err) {
-
-    console.log(err);
-
-    return Response.json({
-      status: "error",
-      message: err.message
-    });
+    return new Response("BPBD Bitung AI Aktif");
   }
-}
-
-return new Response("Not Found", {
-  status: 404
-});
-```
-
-}
 };
