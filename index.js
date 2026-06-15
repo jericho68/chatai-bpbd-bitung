@@ -11,9 +11,9 @@ app.use(express.urlencoded({ extended: true }));
 
 // ── KONFIGURASI (isi sesuai akun Anda) ──────────────────────
 const CONFIG = {
-  GEMINI_API_KEY: process.env.GEMINI_API_KEY || "AQ.Ab8RN6IrpC4NE3NDtR0zuvxeWyt9Kux0DB861Tl5Xr92rtZI_Q",
-  FONNTE_TOKEN:   process.env.FONNTE_TOKEN   || "FV1WnFQpvoKs6vGJmtqN",
-  PORT:           process.env.PORT           || 3000,
+  GEMINI_API_KEY: process.env.GEMINI_API_KEY,
+  FONNTE_TOKEN: process.env.FONNTE_TOKEN,
+  PORT: process.env.PORT || 3000,
 };
 // ────────────────────────────────────────────────────────────
 
